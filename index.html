@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>rawr.xyz · social</title>
-  <!-- Font Awesome 6 (free icons) + Figtree -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -358,6 +357,7 @@
         <img src="https://github.com/imcomingforyou6959-gif/request/blob/main/image.jpg?raw=true" 
              alt="rawr" 
              class="avatar-img"
+             loading="eager"
              onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23332228%22/%3E%3Ctext x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23c97a8a%22 font-size=%2230%22 font-weight=%22bold%22%3ER%3C/text%3E%3C/svg%3E';">
         <div class="online-status"></div>
       </div>
@@ -406,90 +406,87 @@
     <div class="footer-note">Rawr.xyz</div>
   </div>
 
-  <!-- audio with fixed source (direct mp3 link) -->
   <audio id="bgMusic" loop preload="auto" crossorigin="anonymous">
-    <source src="https://github.com/imcomingforyou6959-gif/discord/raw/main/music.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
+    <source src="https://raw.githubusercontent.com/imcomingforyou6959-gif/discord/main/music.mp3" type="audio/mpeg">
   </audio>
 
   <script>
     (function() {
-      const audio = document.getElementById('bgMusic');
-      const playPauseBtn = document.getElementById('playPauseBtn');
-      const playIcon = document.getElementById('playIcon');
-      const volumeSlider = document.getElementById('volumeSlider');
-      const volumeIcon = document.getElementById('volumeIcon');
-      const trackDisplay = document.getElementById('trackDisplay');
+      var audio = document.getElementById('bgMusic');
+      var playPauseBtn = document.getElementById('playPauseBtn');
+      var playIcon = document.getElementById('playIcon');
+      var volumeSlider = document.getElementById('volumeSlider');
+      var volumeIcon = document.getElementById('volumeIcon');
+      var trackDisplay = document.getElementById('trackDisplay');
 
-      let isPlaying = false;
-      let userInteracted = false;
+      var isPlaying = false;
+      var userInteracted = false;
+      var playAttempted = false;
 
-      // set initial volume
-      audio.volume = parseFloat(volumeSlider.value);
+      if (!audio) {
+        console.error('Audio element not found');
+        return;
+      }
+
+      audio.volume = parseFloat(volumeSlider.value) || 0.5;
+      audio.preload = 'auto';
+      audio.crossOrigin = 'anonymous';
 
       function updatePlayButton() {
+        if (!playIcon) return;
         if (isPlaying) {
-          playIcon.classList.remove('fa-play');
-          playIcon.classList.add('fa-pause');
+          playIcon.className = 'fas fa-pause';
         } else {
-          playIcon.classList.remove('fa-pause');
-          playIcon.classList.add('fa-play');
+          playIcon.className = 'fas fa-play';
         }
       }
 
-      // robust attempt to play (handles autoplay policies)
-      function attemptPlay() {
-        if (!audio) return;
-        // ensure audio is ready
-        if (audio.readyState === 0) {
-          // if not loaded, wait a bit and retry
-          setTimeout(attemptPlay, 400);
-          return;
-        }
-        const playPromise = audio.play();
+      function safePlay() {
+        if (!audio || playAttempted) return;
+        playAttempted = true;
+
+        var playPromise = audio.play();
         if (playPromise !== undefined) {
-          playPromise.then(() => {
+          playPromise.then(function() {
             isPlaying = true;
             updatePlayButton();
+            trackDisplay.textContent = 'alex g';
             userInteracted = true;
-            trackDisplay.textContent = 'midnight ambiance';
-          }).catch(error => {
-            console.log("Playback prevented: ", error);
+            console.log('Audio playing successfully');
+          }).catch(function(error) {
+            console.log('Autoplay blocked, waiting for user interaction:', error.message);
             isPlaying = false;
             updatePlayButton();
-            if (!userInteracted) {
-              trackDisplay.textContent = 'click play to start';
-            }
+            trackDisplay.textContent = 'click play to start';
+            playAttempted = false;
           });
-        }
-      }
-
-      function pauseAudio() {
-        if (audio) {
-          audio.pause();
-          isPlaying = false;
-          updatePlayButton();
         }
       }
 
       function togglePlay() {
         if (!audio) return;
         userInteracted = true;
+        playAttempted = true;
+
         if (isPlaying) {
-          pauseAudio();
-          trackDisplay.textContent = 'midnight ambiance (paused)';
+          audio.pause();
+          isPlaying = false;
+          updatePlayButton();
+          trackDisplay.textContent = 'alex g';
         } else {
-          const playPromise = audio.play();
+          audio.currentTime = audio.currentTime || 0;
+          var playPromise = audio.play();
           if (playPromise !== undefined) {
-            playPromise.then(() => {
+            playPromise.then(function() {
               isPlaying = true;
               updatePlayButton();
-              trackDisplay.textContent = 'midnight ambiance';
-            }).catch(err => {
-              console.warn("Play failed:", err);
+              trackDisplay.textContent = 'alex g';
+            }).catch(function(err) {
+              console.warn('Play failed:', err.message);
               isPlaying = false;
               updatePlayButton();
               trackDisplay.textContent = 'playback error';
+              playAttempted = false;
             });
           }
         }
@@ -497,25 +494,35 @@
 
       function handleVolumeChange() {
         if (!audio) return;
-        const vol = parseFloat(volumeSlider.value);
+        var vol = parseFloat(volumeSlider.value);
         audio.volume = vol;
+
         if (volumeIcon) {
-          volumeIcon.classList.remove('fa-volume-up', 'fa-volume-down', 'fa-volume-mute', 'fa-volume-off');
+          volumeIcon.className = 'fas';
           if (vol === 0) {
-            volumeIcon.classList.add('fa-volume-mute');
+            volumeIcon.className += ' fa-volume-mute';
           } else if (vol < 0.4) {
-            volumeIcon.classList.add('fa-volume-down');
+            volumeIcon.className += ' fa-volume-down';
           } else {
-            volumeIcon.classList.add('fa-volume-up');
+            volumeIcon.className += ' fa-volume-up';
           }
         }
       }
 
-      // Event listeners
-      playPauseBtn.addEventListener('click', togglePlay);
+      playPauseBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        togglePlay();
+      });
+
+      playPauseBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        togglePlay();
+      });
+
       volumeSlider.addEventListener('input', handleVolumeChange);
-      
-      volumeIcon.addEventListener('click', () => {
+
+      volumeIcon.addEventListener('click', function() {
+        if (!audio) return;
         if (audio.volume > 0) {
           audio.volume = 0;
           volumeSlider.value = 0;
@@ -526,57 +533,77 @@
         handleVolumeChange();
       });
 
-      // Try to start on load (with policies in mind)
-      window.addEventListener('load', () => {
-        updatePlayButton();
-        handleVolumeChange();
-        
-        // attempt autoplay after a small delay to let audio load
-        setTimeout(() => {
-          attemptPlay();
-        }, 300);
-        
-        // fallback message if still not playing after 2s
-        setTimeout(() => {
-          if (!isPlaying && !userInteracted) {
-            trackDisplay.textContent = 'tap play for music';
-          }
-        }, 2500);
+      audio.addEventListener('loadeddata', function() {
+        console.log('Audio loaded successfully');
+        if (!userInteracted && !isPlaying) {
+          safePlay();
+        }
       });
 
-      // audio events
-      if (audio) {
-        audio.addEventListener('canplaythrough', () => {
-          // if we haven't started yet and user hasn't interacted, try again
-          if (!isPlaying && !userInteracted) {
-            attemptPlay();
-          }
-        });
-        
-        audio.addEventListener('ended', () => {
+      audio.addEventListener('canplay', function() {
+        console.log('Audio can play');
+        if (!userInteracted && !isPlaying) {
+          safePlay();
+        }
+      });
+
+      audio.addEventListener('playing', function() {
+        isPlaying = true;
+        updatePlayButton();
+        trackDisplay.textContent = 'alex g';
+        userInteracted = true;
+      });
+
+      audio.addEventListener('pause', function() {
+        if (!audio.ended && isPlaying) {
           isPlaying = false;
           updatePlayButton();
-          trackDisplay.textContent = 'midnight ambiance';
-        });
-        
-        audio.addEventListener('playing', () => {
-          isPlaying = true;
-          updatePlayButton();
-          trackDisplay.textContent = 'midnight ambiance';
-        });
-        
-        audio.addEventListener('pause', () => {
-          if (!audio.ended) {
-            isPlaying = false;
-            updatePlayButton();
-          }
-        });
-      }
-
-      // visibility change: keep playing
-      document.addEventListener('visibilitychange', () => {
-        // we do nothing, just keep state
+        }
       });
+
+      audio.addEventListener('ended', function() {
+        isPlaying = false;
+        updatePlayButton();
+        trackDisplay.textContent = 'alex g';
+      });
+
+      audio.addEventListener('error', function(e) {
+        console.error('Audio error:', audio.error ? audio.error.code : 'unknown');
+        switch(audio.error ? audio.error.code : 0) {
+          case 1: console.error('MEDIA_ERR_ABORTED'); break;
+          case 2: console.error('MEDIA_ERR_NETWORK'); break;
+          case 3: console.error('MEDIA_ERR_DECODE'); break;
+          case 4: console.error('MEDIA_ERR_SRC_NOT_SUPPORTED'); break;
+        }
+        isPlaying = false;
+        updatePlayButton();
+        trackDisplay.textContent = 'audio error';
+        playAttempted = false;
+      });
+
+      audio.load();
+
+      updatePlayButton();
+      handleVolumeChange();
+
+      setTimeout(function() {
+        if (!isPlaying && !userInteracted) {
+          console.log('No autoplay yet, attempting...');
+          safePlay();
+        }
+      }, 500);
+
+      document.addEventListener('click', function() {
+        if (!isPlaying && audio && audio.paused && audio.readyState >= 2) {
+          safePlay();
+        }
+      }, { once: true });
+
+      document.addEventListener('keydown', function() {
+        if (!isPlaying && audio && audio.paused && audio.readyState >= 2) {
+          safePlay();
+        }
+      }, { once: true });
 
     })();
   </script>
