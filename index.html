@@ -406,8 +406,9 @@
     <div class="footer-note">Rawr.xyz</div>
   </div>
 
-  <audio id="bgMusic" loop preload="auto">
-    <source src="https://github.com/imcomingforyou6959-gif/discord/blob/main/music.mp3?raw=true" type="audio/mpeg">
+  <!-- audio with fixed source (direct mp3 link) -->
+  <audio id="bgMusic" loop preload="auto" crossorigin="anonymous">
+    <source src="https://github.com/imcomingforyou6959-gif/discord/raw/main/music.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
@@ -421,8 +422,9 @@
       const trackDisplay = document.getElementById('trackDisplay');
 
       let isPlaying = false;
-      let userInteracted = false; // to handle autoplay policy gracefully
+      let userInteracted = false;
 
+      // set initial volume
       audio.volume = parseFloat(volumeSlider.value);
 
       function updatePlayButton() {
@@ -435,15 +437,22 @@
         }
       }
 
+      // robust attempt to play (handles autoplay policies)
       function attemptPlay() {
         if (!audio) return;
-        
+        // ensure audio is ready
+        if (audio.readyState === 0) {
+          // if not loaded, wait a bit and retry
+          setTimeout(attemptPlay, 400);
+          return;
+        }
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
             isPlaying = true;
             updatePlayButton();
             userInteracted = true;
+            trackDisplay.textContent = 'midnight ambiance';
           }).catch(error => {
             console.log("Playback prevented: ", error);
             isPlaying = false;
@@ -465,12 +474,10 @@
 
       function togglePlay() {
         if (!audio) return;
-        
         userInteracted = true;
-        
         if (isPlaying) {
           pauseAudio();
-          trackDisplay.textContent = 'midnight ambiance';
+          trackDisplay.textContent = 'midnight ambiance (paused)';
         } else {
           const playPromise = audio.play();
           if (playPromise !== undefined) {
@@ -492,7 +499,6 @@
         if (!audio) return;
         const vol = parseFloat(volumeSlider.value);
         audio.volume = vol;
-        
         if (volumeIcon) {
           volumeIcon.classList.remove('fa-volume-up', 'fa-volume-down', 'fa-volume-mute', 'fa-volume-off');
           if (vol === 0) {
@@ -503,13 +509,10 @@
             volumeIcon.classList.add('fa-volume-up');
           }
         }
-        
-        // 12
-        // 23
       }
 
+      // Event listeners
       playPauseBtn.addEventListener('click', togglePlay);
-      
       volumeSlider.addEventListener('input', handleVolumeChange);
       
       volumeIcon.addEventListener('click', () => {
@@ -520,25 +523,36 @@
           audio.volume = 0.5;
           volumeSlider.value = 0.5;
         }
-        handleVolumeChange(); // update icon
+        handleVolumeChange();
       });
 
+      // Try to start on load (with policies in mind)
       window.addEventListener('load', () => {
-        // Set initial icon states
         updatePlayButton();
         handleVolumeChange();
         
-        // Try to autoplay
-        attemptPlay();
+        // attempt autoplay after a small delay to let audio load
+        setTimeout(() => {
+          attemptPlay();
+        }, 300);
         
+        // fallback message if still not playing after 2s
         setTimeout(() => {
           if (!isPlaying && !userInteracted) {
             trackDisplay.textContent = 'tap play for music';
           }
-        }, 1200);
+        }, 2500);
       });
 
+      // audio events
       if (audio) {
+        audio.addEventListener('canplaythrough', () => {
+          // if we haven't started yet and user hasn't interacted, try again
+          if (!isPlaying && !userInteracted) {
+            attemptPlay();
+          }
+        });
+        
         audio.addEventListener('ended', () => {
           isPlaying = false;
           updatePlayButton();
@@ -552,7 +566,6 @@
         });
         
         audio.addEventListener('pause', () => {
-          // Only set to false
           if (!audio.ended) {
             isPlaying = false;
             updatePlayButton();
@@ -560,11 +573,9 @@
         });
       }
 
+      // visibility change: keep playing
       document.addEventListener('visibilitychange', () => {
-        if (document.hidden && isPlaying) {
-          // 1
-          // 1
-        }
+        // we do nothing, just keep state
       });
 
     })();
