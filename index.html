@@ -1,1 +1,637 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rawr.xyz · midnight</title>
+  <!-- Font Awesome 5 (solid moon) + Figtree -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ---- RESET & BASE (midnight vibes) ---- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Figtree', 'gg sans', 'Noto Sans', sans-serif;
+      background: #0b0809; /* deep bg-4 base */
+      background-image: url('https://cdn.discordapp.com/attachments/1490504787312250901/1519882761412804608/638357.jpg?ex=6a3f2ca0&is=6a3ddb20&hm=aeb7df1851e1bfcb5f166c9f38c3faf0adb2c398ac0de9897f894b8f3161d7b1&');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: hsl(348, 30%, 75%);
+      backdrop-filter: blur(2px);
+    }
+
+    /* ---- main card (glass-panel) ---- */
+    .app-container {
+      max-width: 1280px;
+      width: 100%;
+      background: hsla(348, 25%, 7%, 0.55); /* bg-4 with alpha */
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      padding: 16px;
+      transition: border-color 0.2s ease;
+    }
+    .app-container:hover {
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    /* ---- top bar (like midnight titlebar) ---- */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px 12px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      margin-bottom: 14px;
+    }
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .rawr-brand {
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, hsl(348, 70%, 65%), hsl(348, 50%, 50%));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rawr-brand i {
+      background: none;
+      -webkit-text-fill-color: hsl(348, 65%, 60%);
+      font-size: 1.4rem;
+    }
+    .top-bar-right {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .win-controls {
+      display: flex;
+      gap: 8px;
+      margin-left: 8px;
+    }
+    .win-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      transition: filter 0.15s;
+      cursor: default;
+    }
+    .win-dot:hover { filter: brightness(0.8); }
+    .win-dot.red { background: #d83a41; }
+    .win-dot.yellow { background: #cc954c; }
+    .win-dot.green { background: #40a258; }
+
+    /* ---- panel grid (guilds + channels + chat + member) ---- */
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 72px 240px 1fr 220px;
+      gap: 12px;
+      min-height: 500px;
+    }
+
+    /* ---- shared panel styles (midnight border-radius) ---- */
+    .panel {
+      background: hsla(348, 25%, 10%, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: border-color 0.2s ease, background 0.2s;
+      padding: 12px 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      overflow-y: auto;
+    }
+    .panel:hover {
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    /* ---- guilds (server list) ---- */
+    .guilds-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 6px;
+    }
+    .guild-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: hsla(348, 25%, 18%, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: hsl(348, 20%, 55%);
+      border: 1px solid rgba(255,255,255,0.04);
+      transition: all 0.15s;
+      cursor: default;
+    }
+    .guild-icon.active {
+      background: hsla(348, 65%, 60%, 0.25);
+      border-color: hsl(348, 65%, 60%);
+      color: hsl(348, 60%, 85%);
+      box-shadow: 0 0 12px rgba(200, 80, 110, 0.2);
+    }
+    .guild-icon:hover {
+      background: hsla(348, 30%, 50%, 0.15);
+      transform: scale(1.02);
+    }
+    .guild-icon.dms {
+      background: linear-gradient(135deg, rgba(200,80,110,0.2), rgba(140,70,180,0.2));
+      border-color: rgba(255,255,255,0.1);
+      position: relative;
+    }
+    .guild-icon.dms i {
+      font-size: 22px;
+      color: hsl(348, 30%, 75%);
+    }
+
+    /* ---- channels list ---- */
+    .channels-panel {
+      padding: 12px 4px;
+    }
+    .channel-category {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: hsl(348, 15%, 35%);
+      padding: 8px 8px 4px;
+      font-weight: 600;
+    }
+    .channel-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      margin: 2px 0;
+      transition: margin-left 0.2s ease, background 0.15s;
+      cursor: default;
+      color: hsl(348, 20%, 55%);
+      font-size: 0.9rem;
+    }
+    .channel-item:hover {
+      margin-left: 10px;
+      background: hsla(348, 30%, 50%, 0.08);
+      color: hsl(348, 30%, 75%);
+    }
+    .channel-item i {
+      width: 20px;
+      font-size: 0.9rem;
+      color: hsl(348, 15%, 40%);
+    }
+    .channel-item .unread-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: hsl(348, 65%, 60%);
+      margin-left: auto;
+      transition: margin 0.2s;
+    }
+    .channel-item:hover .unread-dot {
+      margin-left: 4px;
+    }
+
+    /* ---- chat panel (main) ---- */
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+      background: hsla(348, 25%, 7%, 0.3);
+    }
+    .chat-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      color: hsl(348, 45%, 85%);
+    }
+    .chat-header i {
+      color: hsl(348, 20%, 55%);
+      cursor: default;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .message {
+      display: flex;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      transition: background 0.1s;
+    }
+    .message:hover {
+      background: rgba(0,0,0,0.15);
+    }
+    .message.mention {
+      background: linear-gradient(to right, color-mix(in hsl, hsl(348, 65%, 60%), transparent 90%) 40%, transparent);
+      border-left: 4px solid hsl(348, 65%, 60%);
+      border-radius: 14px;
+    }
+    .message.reply {
+      background: linear-gradient(to right, color-mix(in hsl, hsl(348, 30%, 75%), transparent 90%) 40%, transparent);
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: hsla(348, 25%, 18%, 0.6);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: hsl(348, 20%, 55%);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .msg-content {
+      flex: 1;
+    }
+    .msg-author {
+      font-weight: 600;
+      color: hsl(348, 45%, 85%);
+      font-size: 0.9rem;
+    }
+    .msg-text {
+      color: hsl(348, 30%, 75%);
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+    .msg-time {
+      font-size: 0.7rem;
+      color: hsl(348, 15%, 35%);
+      margin-left: 8px;
+    }
+    .chat-footer {
+      padding: 12px 18px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .chat-input {
+      flex: 1;
+      background: hsla(348, 25%, 14%, 0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 30px;
+      padding: 10px 18px;
+      color: hsl(348, 30%, 75%);
+      font-family: 'Figtree', sans-serif;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .chat-input::placeholder {
+      color: hsl(348, 15%, 35%);
+    }
+    .chat-input:focus {
+      border-color: hsl(348, 65%, 60%);
+    }
+    .chat-footer i {
+      color: hsl(348, 20%, 55%);
+      font-size: 1.2rem;
+      cursor: default;
+    }
+    .chat-footer i:hover {
+      color: hsl(348, 30%, 75%);
+    }
+
+    /* ---- member list ---- */
+    .members-panel {
+      padding: 12px 6px;
+    }
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      margin: 3px 0;
+      transition: background 0.15s, margin-left 0.2s;
+      cursor: default;
+    }
+    .member-item:hover {
+      background: hsla(348, 30%, 50%, 0.08);
+      margin-left: 12px;
+    }
+    .member-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: hsla(348, 25%, 18%, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: hsl(348, 20%, 55%);
+    }
+    .member-name {
+      font-size: 0.85rem;
+      color: hsl(348, 20%, 55%);
+    }
+    .member-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-left: auto;
+    }
+    .member-status.online { background: #40a258; }
+    .member-status.idle { background: #cc954c; }
+    .member-status.dnd { background: #d83a41; }
+    .member-status.offline { background: hsl(348, 15%, 35%); }
+
+    /* ---- user panel (bottom of guilds) ---- */
+    .user-panel {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 8px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      background: hsla(348, 25%, 7%, 0.2);
+      border-radius: 16px;
+    }
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, hsl(348, 65%, 60%), hsl(348, 50%, 45%));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1a0e12;
+      font-weight: 700;
+    }
+    .user-info {
+      flex: 1;
+    }
+    .user-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: hsl(348, 45%, 85%);
+    }
+    .user-tag {
+      font-size: 0.7rem;
+      color: hsl(348, 15%, 35%);
+    }
+    .user-icons {
+      display: flex;
+      gap: 8px;
+      color: hsl(348, 20%, 55%);
+    }
+    .user-icons i {
+      cursor: default;
+      transition: color 0.15s;
+    }
+    .user-icons i:hover {
+      color: hsl(348, 30%, 75%);
+    }
+
+    /* ---- responsive ---- */
+    @media (max-width: 900px) {
+      .panel-grid {
+        grid-template-columns: 64px 180px 1fr;
+      }
+      .members-panel { display: none; }
+    }
+    @media (max-width: 680px) {
+      .panel-grid {
+        grid-template-columns: 56px 1fr;
+      }
+      .channels-panel { display: none; }
+      .guilds-panel { padding: 8px 2px; }
+    }
+
+    /* ---- extras: divider, unread, etc ---- */
+    .divider {
+      height: 4px;
+      border-radius: 4px;
+      background: hsl(348, 65%, 60%);
+      margin: 8px 0;
+      opacity: 0.5;
+    }
+    .unread-pill {
+      background: hsl(348, 65%, 60%);
+      color: #1a0e12;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 30px;
+      display: inline-block;
+    }
+    .mention-badge {
+      background: hsl(348, 65%, 60%);
+      color: #1a0e12;
+      border-radius: 30px;
+      padding: 1px 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    /* subtle scroll */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: hsla(348, 25%, 18%, 0.5);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- TOP BAR (rawr.xyz + window controls) -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="rawr-brand">
+        <i class="fas fa-moon"></i> rawr.xyz
+      </div>
+      <span style="font-size:0.75rem; color: hsl(348, 15%, 35%); padding-left: 6px;">✦ midnight</span>
+    </div>
+    <div class="top-bar-right">
+      <i class="fas fa-search" style="color: hsl(348, 20%, 55%); margin-right: 10px;"></i>
+      <i class="fas fa-bell" style="color: hsl(348, 20%, 55%); margin-right: 6px;"></i>
+      <span class="mention-badge" style="margin-right: 10px;">3</span>
+      <div class="win-controls">
+        <span class="win-dot red"></span>
+        <span class="win-dot yellow"></span>
+        <span class="win-dot green"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="panel-grid">
+
+    <!-- GUILDS (server list) -->
+    <div class="panel guilds-panel">
+      <div class="guild-icon dms active">
+        <i class="fas fa-home"></i>
+      </div>
+      <div class="guild-icon"><i class="fas fa-hashtag"></i></div>
+      <div class="guild-icon"><i class="fas fa-gamepad"></i></div>
+      <div class="guild-icon"><i class="fas fa-code"></i></div>
+      <div class="guild-icon"><i class="fas fa-music"></i></div>
+      <div class="guild-icon"><i class="fas fa-plus" style="font-size: 1.2rem;"></i></div>
+      <!-- user panel inside guilds (small) -->
+      <div class="user-panel">
+        <div class="user-avatar">R</div>
+        <div class="user-info">
+          <div class="user-name">rawr</div>
+          <div class="user-tag">#6969</div>
+        </div>
+        <div class="user-icons">
+          <i class="fas fa-microphone"></i>
+          <i class="fas fa-headphones"></i>
+          <i class="fas fa-cog"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANNELS -->
+    <div class="panel channels-panel">
+      <div class="channel-category">text channels</div>
+      <div class="channel-item">
+        <i class="fas fa-hashtag"></i> general
+        <span class="unread-dot"></span>
+      </div>
+      <div class="channel-item"><i class="fas fa-hashtag"></i> lounge</div>
+      <div class="channel-item"><i class="fas fa-hashtag"></i> dev</div>
+      <div class="channel-item"><i class="fas fa-hashtag"></i> art</div>
+      <div class="channel-category" style="margin-top: 14px;">voice</div>
+      <div class="channel-item"><i class="fas fa-volume-up"></i> chill</div>
+      <div class="channel-item"><i class="fas fa-volume-up"></i> gaming</div>
+      <div class="channel-item"><i class="fas fa-volume-up"></i> music</div>
+      <div class="divider" style="margin: 12px 0;"></div>
+      <div class="channel-item"><i class="fas fa-user"></i> friends</div>
+    </div>
+
+    <!-- CHAT (main) -->
+    <div class="panel chat-panel">
+      <div class="chat-header">
+        <span><i class="fas fa-hashtag" style="margin-right: 6px;"></i> general</span>
+        <span><i class="fas fa-ellipsis-v"></i></span>
+      </div>
+      <div class="chat-messages">
+        <div class="message">
+          <div class="avatar"><i class="fas fa-user"></i></div>
+          <div class="msg-content">
+            <div class="msg-author">Kai <span class="msg-time">10:42</span></div>
+            <div class="msg-text">anyone up for a quick project?</div>
+          </div>
+        </div>
+        <div class="message reply">
+          <div class="avatar"><i class="fas fa-code"></i></div>
+          <div class="msg-content">
+            <div class="msg-author">Nyx <span class="msg-time">10:44</span></div>
+            <div class="msg-text">i'm in, what's the stack?</div>
+          </div>
+        </div>
+        <div class="message mention">
+          <div class="avatar"><i class="fas fa-moon"></i></div>
+          <div class="msg-content">
+            <div class="msg-author">rawr <span class="msg-time">10:45</span></div>
+            <div class="msg-text">@Kai @Nyx let's do something with midnight theme vibes ✦</div>
+          </div>
+        </div>
+        <div class="message">
+          <div class="avatar"><i class="fas fa-paint-brush"></i></div>
+          <div class="msg-content">
+            <div class="msg-author">Mira <span class="msg-time">10:47</span></div>
+            <div class="msg-text">love the color palette, very cozy</div>
+          </div>
+        </div>
+        <div class="divider" style="margin: 4px 0;"></div>
+        <div style="display: flex; gap: 8px; align-items: center; font-size:0.8rem; color: hsl(348, 15%, 35%);">
+          <span class="unread-pill">2 new</span> <span>messages since 10:30</span>
+        </div>
+      </div>
+      <div class="chat-footer">
+        <i class="fas fa-plus-circle"></i>
+        <input class="chat-input" placeholder="message #general ..." value="rawr.xyz is live ✦">
+        <i class="fas fa-smile"></i>
+        <i class="fas fa-gift"></i>
+      </div>
+    </div>
+
+    <!-- MEMBER LIST -->
+    <div class="panel members-panel">
+      <div style="font-size:0.7rem; text-transform: uppercase; letter-spacing:0.5px; color: hsl(348, 15%, 35%); padding: 0 4px 8px;">members — 8</div>
+      <div class="member-item">
+        <div class="member-avatar"><i class="fas fa-user"></i></div>
+        <span class="member-name">rawr</span>
+        <span class="member-status online"></span>
+      </div>
+      <div class="member-item">
+        <div class="member-avatar"><i class="fas fa-code"></i></div>
+        <span class="member-name">Nyx</span>
+        <span class="member-status idle"></span>
+      </div>
+      <div class="member-item">
+        <div class="member-avatar"><i class="fas fa-moon"></i></div>
+        <span class="member-name">Kai</span>
+        <span class="member-status online"></span>
+      </div>
+      <div class="member-item">
+        <div class="member-avatar"><i class="fas fa-paint-brush"></i></div>
+        <span class="member-name">Mira</span>
+        <span class="member-status dnd"></span>
+      </div>
+      <div class="member-item">
+        <div class="member-avatar"><i class="fas fa-headphones"></i></div>
+        <span class="member-name">Lofi</span>
+        <span class="member-status offline"></span>
+      </div>
+      <div class="member-item">
+        <div class="member-avatar"><i class="fas fa-crown"></i></div>
+        <span class="member-name">Astra</span>
+        <span class="member-status online"></span>
+      </div>
+    </div>
+
+  </div><!-- /panel-grid -->
+
+  <!-- small footer hint -->
+  <div style="margin-top: 16px; text-align: right; font-size:0.7rem; color: hsl(348, 15%, 30%); padding-right: 6px;">
+    midnight · rawr.xyz
+  </div>
+</div><!-- /app-container -->
+
+</body>
+</html>
