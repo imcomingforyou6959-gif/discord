@@ -32,7 +32,6 @@
       backdrop-filter: blur(6px);
     }
 
-    /* main vertical card – centered, glass-midnight */
     .social-card {
       max-width: 520px;
       width: 100%;
@@ -53,7 +52,6 @@
       border-color: rgba(255, 255, 255, 0.15);
     }
 
-    /* top bar inside card (moon brand) */
     .top-row {
       width: 100%;
       display: flex;
@@ -94,7 +92,6 @@
     .dot.green { background: #40a258; }
     .dot:hover { filter: brightness(0.75); }
 
-    /* profile section – discord style pfp with status */
     .profile-section {
       display: flex;
       flex-direction: column;
@@ -161,7 +158,6 @@
       margin-top: 2px;
     }
 
-    /* social links – vertical middle layout */
     .links-container {
       width: 100%;
       display: flex;
@@ -225,7 +221,6 @@
       color: hsl(348, 25%, 60%);
     }
 
-    /* music controller card at bottom */
     .music-controller {
       width: 100%;
       background: hsla(348, 25%, 10%, 0.65);
@@ -327,7 +322,6 @@
       text-overflow: ellipsis;
     }
 
-    /* subtle footer */
     .footer-note {
       font-size: 0.7rem;
       color: hsl(348, 15%, 30%);
@@ -348,7 +342,6 @@
 <body>
   <div class="social-card">
     
-    <!-- Top bar with moon brand and window dots -->
     <div class="top-row">
       <div class="brand">
         <i class="fas fa-moon"></i> rawr.xyz
@@ -360,24 +353,21 @@
       </div>
     </div>
 
-    <!-- Profile picture (Discord style) + username -->
     <div class="profile-section">
       <div class="avatar-wrapper">
         <img src="https://github.com/imcomingforyou6959-gif/request/blob/main/image.jpg?raw=true" 
-             alt="rawr profile" 
+             alt="rawr" 
              class="avatar-img"
              onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23332228%22/%3E%3Ctext x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23c97a8a%22 font-size=%2230%22 font-weight=%22bold%22%3ER%3C/text%3E%3C/svg%3E';">
         <div class="online-status"></div>
       </div>
       <div class="username">
-        rawr <span>#6969</span>
+        @6x94 <span>#0001</span>
       </div>
-      <div class="bio">✦ midnight social · stay cozy ✦</div>
+      <div class="bio">Stay woke son</div>
     </div>
 
-    <!-- Vertical social links (middle layout) -->
     <div class="links-container">
-      <!-- Discord -->
       <a href="https://discord.gg/eMpUQzFrNG" target="_blank" rel="noopener noreferrer" class="social-link">
         <i class="fab fa-discord"></i>
         <div class="link-text">
@@ -386,7 +376,7 @@
         </div>
         <i class="fas fa-arrow-right" style="margin-left: auto; font-size: 0.9rem; opacity: 0.7;"></i>
       </a>
-      <!-- YouTube -->
+      
       <a href="https://www.youtube.com/@rawr.xy3" target="_blank" rel="noopener noreferrer" class="social-link">
         <i class="fab fa-youtube"></i>
         <div class="link-text">
@@ -397,7 +387,6 @@
       </a>
     </div>
 
-    <!-- Music controller with pause/play and volume slider -->
     <div class="music-controller">
       <div class="now-playing">
         <i class="fas fa-music"></i> <span>now playing</span>
@@ -409,15 +398,14 @@
         <div class="volume-slider-container">
           <i class="fas fa-volume-up" id="volumeIcon"></i>
           <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" aria-label="Volume">
-          <span class="track-title" id="trackDisplay">midnight ambiance</span>
+          <span class="track-title" id="trackDisplay">alex g</span>
         </div>
       </div>
     </div>
     
-    <div class="footer-note">✦ rawr.xyz · midnight</div>
+    <div class="footer-note">Rawr.xyz</div>
   </div>
 
-  <!-- Hidden audio element -->
   <audio id="bgMusic" loop preload="auto">
     <source src="https://github.com/imcomingforyou6959-gif/discord/blob/main/music.mp3?raw=true" type="audio/mpeg">
     Your browser does not support the audio element.
@@ -425,7 +413,6 @@
 
   <script>
     (function() {
-      // --- DOM elements ---
       const audio = document.getElementById('bgMusic');
       const playPauseBtn = document.getElementById('playPauseBtn');
       const playIcon = document.getElementById('playIcon');
@@ -433,14 +420,11 @@
       const volumeIcon = document.getElementById('volumeIcon');
       const trackDisplay = document.getElementById('trackDisplay');
 
-      // --- State ---
       let isPlaying = false;
       let userInteracted = false; // to handle autoplay policy gracefully
 
-      // --- Set initial volume ---
       audio.volume = parseFloat(volumeSlider.value);
 
-      // --- Update UI based on play state ---
       function updatePlayButton() {
         if (isPlaying) {
           playIcon.classList.remove('fa-play');
@@ -451,7 +435,6 @@
         }
       }
 
-      // --- Attempt to play audio (respects autoplay policy) ---
       function attemptPlay() {
         if (!audio) return;
         
@@ -462,20 +445,16 @@
             updatePlayButton();
             userInteracted = true;
           }).catch(error => {
-            // Autoplay was prevented or other error
             console.log("Playback prevented: ", error);
             isPlaying = false;
             updatePlayButton();
-            // Keep userInteracted false if it wasn't a user gesture
             if (!userInteracted) {
-              // We can show a subtle hint that music is ready
               trackDisplay.textContent = 'click play to start';
             }
           });
         }
       }
 
-      // --- Pause audio ---
       function pauseAudio() {
         if (audio) {
           audio.pause();
@@ -484,18 +463,15 @@
         }
       }
 
-      // --- Toggle play/pause ---
       function togglePlay() {
         if (!audio) return;
         
-        // Mark that user interacted (for autoplay policy)
         userInteracted = true;
         
         if (isPlaying) {
           pauseAudio();
           trackDisplay.textContent = 'midnight ambiance';
         } else {
-          // Try to play
           const playPromise = audio.play();
           if (playPromise !== undefined) {
             playPromise.then(() => {
@@ -512,13 +488,11 @@
         }
       }
 
-      // --- Volume change handler ---
       function handleVolumeChange() {
         if (!audio) return;
         const vol = parseFloat(volumeSlider.value);
         audio.volume = vol;
         
-        // Update volume icon based on level
         if (volumeIcon) {
           volumeIcon.classList.remove('fa-volume-up', 'fa-volume-down', 'fa-volume-mute', 'fa-volume-off');
           if (vol === 0) {
@@ -530,16 +504,14 @@
           }
         }
         
-        // If audio is not playing but user tries to adjust, we can attempt to play on interaction?
-        // Better: just adjust volume, but if audio is paused, no need.
+        // 12
+        // 23
       }
 
-      // --- Attach event listeners ---
       playPauseBtn.addEventListener('click', togglePlay);
       
       volumeSlider.addEventListener('input', handleVolumeChange);
       
-      // Also handle volume icon click to mute/unmute (optional convenience)
       volumeIcon.addEventListener('click', () => {
         if (audio.volume > 0) {
           audio.volume = 0;
@@ -551,17 +523,14 @@
         handleVolumeChange(); // update icon
       });
 
-      // --- Attempt autoplay on load (with user gesture awareness) ---
       window.addEventListener('load', () => {
         // Set initial icon states
         updatePlayButton();
         handleVolumeChange();
         
-        // Try to autoplay (modern browsers may block)
+        // Try to autoplay
         attemptPlay();
         
-        // If after 1 second it's still not playing and no user interaction,
-        // we can display a hint (but keep button ready)
         setTimeout(() => {
           if (!isPlaying && !userInteracted) {
             trackDisplay.textContent = 'tap play for music';
@@ -569,7 +538,6 @@
         }, 1200);
       });
 
-      // Additional: if audio ends unexpectedly (shouldn't with loop), but just in case
       if (audio) {
         audio.addEventListener('ended', () => {
           isPlaying = false;
@@ -584,7 +552,7 @@
         });
         
         audio.addEventListener('pause', () => {
-          // Only set to false if not triggered by user? But safe.
+          // Only set to false
           if (!audio.ended) {
             isPlaying = false;
             updatePlayButton();
@@ -592,11 +560,10 @@
         });
       }
 
-      // Handle page visibility change to possibly pause? (optional, keep it minimal)
       document.addEventListener('visibilitychange', () => {
         if (document.hidden && isPlaying) {
-          // Could pause but we keep playing to respect background music? 
-          // Usually we let it play. We'll leave as is.
+          // 1
+          // 1
         }
       });
 
